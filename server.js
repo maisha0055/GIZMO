@@ -11,52 +11,49 @@ import jobRoutes from './routes/jobRoutes.js'
 import userRoutes from './routes/userRoutes.js'
 import { clerkMiddleware } from '@clerk/express'
 
-// Wrap everything in an async function
-const startServer = async () => {
-  try {
-    // Initialize Express
-    const app = express()
-    
-    // Connect to database and cloudinary
-    await connectDB()
-    await connectCloudinary()
-    
-    // Middlewares
-    app.use(cors({
-      origin: process.env.FRONTEND_URL || '*',
-      credentials: true
-    }))
-    app.use(express.json())
-    app.use(clerkMiddleware())
-    
-    // Routes
-    app.get('/', (req, res) => res.send("API Working"))
-    
-    app.get("/debug-sentry", function mainHandler(req, res) {
-      throw new Error("My first Sentry error!");
-    });
-    
-    app.post('/webhooks', clerkWebhooks)
-    app.use('/api/company', companyRoutes)
-    app.use('/api/jobs', jobRoutes)
-    app.use('/api/users', userRoutes)
-    
-    // Sentry error handler (must be after all routes)
-    Sentry.setupExpressErrorHandler(app);
-    
-    // Port
-    const PORT = process.env.PORT || 4000
-    
-    // Start server
-    app.listen(PORT, () => {
-      console.log(`Server is running on port ${PORT}`)
-    })
-    
-  } catch (error) {
-    console.error('Failed to start server:', error)
-    process.exit(1)
-  }
-}
+// Initialize Express
+const app = express()
 
-// Start the server
-startServer()
+// Track connection state to avoid reconnecting on every request
+let isConnected = false
+
+// Middleware to lazily connect DB and Cloudinary (required for serverless)
+app.use(async (req, res, next) => {
+  if (!isConnected) {
+    try {
+      await connectDB()
+      await connectCloudinary()
+      isConnected = true
+    } catch (err) {
+      console.error('Connection error:', err)
+      return res.status(500).json({ message: 'Failed to connect to database' })
+    }
+  }
+  next()
+})
+
+// Middlewares
+app.use(cors({
+  origin: process.env.FRONTEND_URL || '*',
+  credentials: true
+}))
+app.use(express.json())
+app.use(clerkMiddleware())
+
+// Routes
+app.get('/', (req, res) => res.send("API Working"))
+
+app.get("/debug-sentry", function mainHandler(req, res) {
+  throw new Error("My first Sentry error!");
+});
+
+app.post('/webhooks', clerkWebhooks)
+app.use('/api/company', companyRoutes)
+app.use('/api/jobs', jobRoutes)
+app.use('/api/users', userRoutes)
+
+// Sentry error handler (must be after all routes)
+Sentry.setupExpressErrorHandler(app);
+
+// Export for Vercel serverless - do NOT call app.listen()
+export default app

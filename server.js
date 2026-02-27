@@ -9,6 +9,8 @@ import companyRoutes from './routes/companyRoutes.js'
 import connectCloudinary from './config/cloudinary.js'
 import jobRoutes from './routes/jobRoutes.js'
 import userRoutes from './routes/userRoutes.js'
+import adminRoutes from './routes/adminRoutes.js'
+import reportRoutes from './routes/reportRoutes.js'
 import { clerkMiddleware } from '@clerk/express'
 
 // Initialize Express
@@ -51,9 +53,11 @@ app.post('/webhooks', clerkWebhooks)
 app.use('/api/company', companyRoutes)
 app.use('/api/jobs', jobRoutes)
 app.use('/api/users', userRoutes)
+app.use('/api/admin', adminRoutes)
+app.use('/api/reports', reportRoutes)
 
 // Sentry error handler (must be after all routes)
 Sentry.setupExpressErrorHandler(app);
 
-// Export for Vercel serverless - do NOT call app.listen()
+// Export for Vercel serverless
 export default app

@@ -5,7 +5,8 @@ const userSchema = new mongoose.Schema({
     name: { type: String, required: true },
     email: { type: String, required: true, unique: true },
     resume: { type: String },
-    image: { type: String, required: false }
+    image: { type: String, required: false },
+    isBanned: { type: Boolean, default: false }
 })
 
 const User = mongoose.model('User', userSchema)

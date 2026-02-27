@@ -14,6 +14,10 @@ export const protectCompany = async(req, res, next) =>{
 
         req.company = await Company.findById(decoded.id).select('-password')
 
+        if (req.company && req.company.isBanned) {
+            return res.json({ success: false, message: 'Your account has been banned. Contact support.' })
+        }
+
         next()
         
     } catch (error) {

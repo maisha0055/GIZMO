@@ -5,6 +5,7 @@ const companySchema = new mongoose.Schema({
     email: {type:String, required:true, unique:true},
     image: {type: String, required: true},
     password: {type: String, required: true},
+    isBanned: {type: Boolean, default: false}
 })
 
 const Company = mongoose.model('Company', companySchema)

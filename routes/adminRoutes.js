@@ -4,7 +4,7 @@ import {
     loginAdmin,
     getAllUsers, banUser, unbanUser,
     getAllCompanies, banCompany, unbanCompany,
-    addNews, getNews, deleteNews,
+    addNews, getNews, deleteNews, updateNews,
     getReports, resolveReport
 } from '../controllers/adminController.js'
 
@@ -24,6 +24,7 @@ router.put('/ban-company/:id', protectAdmin, banCompany)
 router.put('/unban-company/:id', protectAdmin, unbanCompany)
 
 router.post('/news', protectAdmin, addNews)
+router.put('/news/:id', protectAdmin, updateNews)
 router.delete('/news/:id', protectAdmin, deleteNews)
 
 router.get('/reports', protectAdmin, getReports)

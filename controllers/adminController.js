@@ -117,6 +117,18 @@ export const deleteNews = async (req, res) => {
     }
 }
 
+export const updateNews = async (req, res) => {
+    try {
+        const { id } = req.params
+        const { title, content, category, imageUrl } = req.body
+        const news = await News.findByIdAndUpdate(id, { title, content, category, imageUrl }, { new: true })
+        if (!news) return res.json({ success: false, message: 'Article not found.' })
+        res.json({ success: true, message: 'Article updated!', news })
+    } catch (error) {
+        res.json({ success: false, message: error.message })
+    }
+}
+
 // ─── Reports ─────────────────────────────────────────────────────────────────
 
 export const getReports = async (req, res) => {
